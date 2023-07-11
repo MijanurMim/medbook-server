@@ -1,21 +1,21 @@
 const appointmentModel = require("../models/appointmentModel");
-const doctorModel = require("../models/doctorModel");
+const patientModel = require("../models/patientModel");
 const userModel = require("../models/userModels");
 
-const getDoctorInfoController = async (req, res) => {
+const getPatientInfoController = async (req, res) => {
   try {
-    const doctor = await doctorModel.findOne({ userId: req.body.userId });
+    const patient = await patientModel.findOne({ userId: req.body.userId });
     res.status(200).send({
       success: true,
-      message: "doctor data fetch success",
-      data: doctor,
+      message: "patient data fetch success",
+      data: patient,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
       error,
-      message: "Error in Fetching Doctor Details",
+      message: "Error in Fetching patient Details",
     });
   }
 };
@@ -23,40 +23,98 @@ const getDoctorInfoController = async (req, res) => {
 // update doc profile
 const updateProfileController = async (req, res) => {
   try {
-    const doctor = await doctorModel.findOneAndUpdate(
+    const patient = await patientModel.findOneAndUpdate(
       { userId: req.body.userId },
       req.body
     );
     res.status(201).send({
       success: true,
-      message: "Doctor Profile Updated",
-      data: doctor,
+      message: "patient Profile Updated",
+      data: patient,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Doctor Profile Update issue",
+      message: "patient Profile Update issue",
       error,
     });
   }
 };
 
-//get single doctor
-const getDoctorByIdController = async (req, res) => {
+//get single patient
+const getPatientByIdController = async (req, res) => {
   try {
-    const doctor = await doctorModel.findOne({ _id: req.body.doctorId });
+    const patient = await patientModel.findOne({ _id: req.body.patientId });
     res.status(200).send({
       success: true,
       message: "Single Doc Info Fetched",
-      data: doctor,
+      data: patient,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
       error,
-      message: "Error in Single doctor info",
+      message: "Error in Single patient info",
     });
   }
+};
+
+const patientAppointmentsController = async (req, res) => {
+  try {
+    const patient = await patientModel.findOne({ userId: req.body.userId });
+    const appointments = await appointmentModel.find({
+      patientId: patient._id,
+    });
+    res.status(200).send({
+      success: true,
+      message: "patient Appointments fetch Successfully",
+      data: appointments,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      error,
+      message: "Error in Doc Appointments",
+    });
+  }
+};
+
+const updateStatusController = async (req, res) => {
+  try {
+    const { appointmentsId, status } = req.body;
+    const appointments = await appointmentModel.findByIdAndUpdate(
+      appointmentsId,
+      { status }
+    );
+    const user = await userModel.findOne({ _id: appointments.userId });
+    const notification = user.notification;
+    notification.push({
+      type: "status-updated",
+      message: `your appointment has been updated ${status}`,
+      onCLickPath: "/patient-appointments",
+    });
+    await user.save();
+    res.status(200).send({
+      success: true,
+      message: "Appointment Status Updated",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      error,
+      message: "Error In Update Status",
+    });
+  }
+};
+
+module.exports = {
+  getPatientInfoController,
+  updateProfileController,
+  getPatientByIdController,
+  patientAppointmentsController,
+  updateStatusController,
 };

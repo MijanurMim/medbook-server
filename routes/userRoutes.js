@@ -9,6 +9,7 @@ const {
   getAllDoctorsController,
   bookAppointmentController,
   userAppointmentsController,
+  applyPatientController,
 } = require("../controllers/userCtrl");
 const authMiddleware = require("../middlewares/authMiddleware");
 
@@ -27,6 +28,9 @@ router.post("/getUserData", authMiddleware, authController);
 
 // Apply Doctor || post
 router.post("/apply-doctor", authMiddleware, applyDoctorController);
+
+// Apply Patient || post
+router.post("/apply-patient", authMiddleware, applyPatientController);
 
 //Notification  Doctor || POST
 router.post(

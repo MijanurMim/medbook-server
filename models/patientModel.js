@@ -26,6 +26,7 @@ const patientSchema = new mongoose.Schema(
       type: String,
       required: [true, "address is required"],
     },
+
     previousDisease: {
       type: String,
     },
@@ -38,6 +39,10 @@ const patientSchema = new mongoose.Schema(
     },
     currentDisease: {
       type: String,
+    },
+    status: {
+      type: String,
+      default: "pending",
     },
   },
   { timestamps: true }

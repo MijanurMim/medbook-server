@@ -31,11 +31,13 @@ app.use(morgan("dev"));
 const user = require("./routes/userRoutes");
 const admin = require("./routes/adminRoutes");
 const doctor = require("./routes/doctorRoutes");
+const patient = require("./routes/patientRoutes");
 
 // routes
 app.use("/api/v1/user", user);
 app.use("/api/v1/admin", admin);
 app.use("/api/v1/doctor", doctor);
+app.use("/api/v1/patient", patient);
 
 // listen port
 const port = process.env.PORT || 6000;

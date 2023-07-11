@@ -1,5 +1,6 @@
 const userModel = require("../models/userModels");
 const doctorModel = require("../models/doctorModel");
+const patientModel = require("../models/patientModel");
 const moment = require("moment");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -129,6 +130,42 @@ const applyDoctorController = async (req, res) => {
       success: false,
       error,
       message: "Error While Applying For Doctor",
+    });
+  }
+};
+// Apply Patient Controller
+const applyPatientController = async (req, res) => {
+  try {
+    const newPatient = await patientModel({ ...req.body, status: "pending" });
+
+    await newPatient.save();
+
+    const adminUser = await userModel.findOne({ isAdmin: true });
+
+    const notification = adminUser.notification;
+
+    notification.push({
+      type: "apply-patient-request",
+      message: `${newPatient.firstName} ${newPatient.lastName} Has Applied For A Patient Account`,
+      data: {
+        doctorId: newPatient._id,
+        name: newPatient.firstName + " " + newPatient.lastName,
+        onClickPath: "/admin/patients",
+      },
+    });
+
+    await userModel.findByIdAndUpdate(adminUser._id, { notification });
+
+    res.status(201).send({
+      success: true,
+      message: "Patient Account Applied Successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      error,
+      message: "Error While Applying For Patient",
     });
   }
 };
@@ -305,4 +342,5 @@ module.exports = {
   bookAppointmentController,
   bookingAvailabilityController,
   userAppointmentsController,
+  applyPatientController,
 };
